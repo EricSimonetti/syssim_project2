@@ -1,16 +1,14 @@
 import java.util.regex.Pattern;
 
 class StateMachine {
-    private int q = 10, d = 10, n = 10, v = 0;
-    private boolean c = false;
+    private int q = 10, d = 10, n = 10, v;
+    private boolean c;
 
     String tick(String input){
         if(!Pattern.compile("[qdncw]*").matcher(input).matches()) return "Unrecognized input";
 
         String output = lambda();
-        delta();
-
-        if(!input.contains("w")) processInput(input); //you cant be waiting for the machine to process and also input
+        delta(input);
 
         return output;
     }
@@ -21,7 +19,8 @@ class StateMachine {
         return produceCoffee();
     }
 
-    private void delta(){
+    private void delta(String input){
+        processInput(input);
         if(v/100 > 0) v = v%100;
         if(c && v>0){
             int[] change = change();
