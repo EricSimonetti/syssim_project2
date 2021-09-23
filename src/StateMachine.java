@@ -4,8 +4,9 @@ class StateMachine {
     private int q = 10, d = 10, n = 10, v;
     private boolean c;
 
-    String tick(String input){
-        if(!Pattern.compile("[qdncw]*").matcher(input).matches()) return "Unrecognized input";
+    String tick(String input) throws NoChangeException, BadInputException{
+        if(!Pattern.compile("[qdncw]*").matcher(input).matches())
+            throw new BadInputException("Unrecognized input");
 
         String output = lambda();
         delta(input);
@@ -13,13 +14,17 @@ class StateMachine {
         return output;
     }
 
-    private String lambda(){
-        if(c)
-            return produceChange();
-        return produceCoffee();
+    private String lambda() throws NoChangeException{
+        StringBuilder output = new StringBuilder("{");
+        if(c){
+            produceChange(output);
+        }
+        produceCoffee(output);
+
+        return output.toString();
     }
 
-    private void delta(String input){
+    private void delta(String input) throws NoChangeException{
         processInput(input);
         if(v/100 > 0) v = v%100;
         if(c && v>0){
@@ -53,7 +58,7 @@ class StateMachine {
             }
     }
 
-    private int[] change(){
+    private int[] change() throws NoChangeException{
         int[] coins = {q, d, n};
         int[] values = {25, 10, 5};
         int[] change = new int[3];
@@ -66,17 +71,15 @@ class StateMachine {
                 tempV -= values[i];
             }
         }
-        if(tempV != 0) return new int[0];
+        if(tempV != 0) throw new NoChangeException("Could not return change for your " + v + " cents");
         return change;
     }
 
-    private String produceChange(){
-        if(v == 0) return "{nothing}";
+    private void produceChange(StringBuilder output) throws NoChangeException{
+        if(v == 0) return;
         int[] change = change();
-        if(change.length != 3) return "Could not make change! Sorry ):";
 
         String[] names = {"quarter", "dime", "nickel"};
-        StringBuilder output = new StringBuilder("{");
         for(int i = 0; i < change.length; i++){
             if(change[i]!=0) {
                 if (output.length() > 1) output.append(", ");
@@ -86,12 +89,15 @@ class StateMachine {
                 else output.append(change[i]).append(" ").append(names[i]).append("s");
             }
         }
-        return output.append("}").toString();
     }
 
-    private String produceCoffee(){
-        if(v/100 > 0)
-            return "{" + (v/100 == 1? "coffee}": v/100 + " coffees}");
-        return "{nothing}";
+    private void produceCoffee(StringBuilder output){
+        if (output.length() > 1) output.append(", ");
+        if(v/100 > 0){
+            if(v/100 == 1) output.append(v/100).append(" coffees");
+            else output.append("coffee");
+        }
+        if(output.length() == 1) output.append("nothing");
+        output.append("}");
     }
 }
