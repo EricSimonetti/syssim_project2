@@ -16,16 +16,15 @@ class StateMachine {
 
     private String lambda() throws NoChangeException{
         StringBuilder output = new StringBuilder("{");
-        if(c){
+        if(c)
             produceChange(output);
-        }
-        produceCoffee(output);
+        else
+            produceCoffee(output);
 
         return output.toString();
     }
 
     private void delta(String input) throws NoChangeException{
-        processInput(input);
         if(v/100 > 0) v = v%100;
         if(c && v>0){
             int[] change = change();
@@ -37,6 +36,7 @@ class StateMachine {
             }
         }
         c = false;
+        processInput(input);
     }
 
     private void processInput(String input){
@@ -76,9 +76,12 @@ class StateMachine {
     }
 
     private void produceChange(StringBuilder output) throws NoChangeException{
-        if(v == 0) return;
-        int[] change = change();
+        if(v == 0) {
+            output.append("nothing}");
+            return;
+        }
 
+        int[] change = change();
         String[] names = {"quarter", "dime", "nickel"};
         for(int i = 0; i < change.length; i++){
             if(change[i]!=0) {
@@ -89,12 +92,13 @@ class StateMachine {
                 else output.append(change[i]).append(" ").append(names[i]).append("s");
             }
         }
+        output.append("}");
     }
 
     private void produceCoffee(StringBuilder output){
         if (output.length() > 1) output.append(", ");
         if(v/100 > 0){
-            if(v/100 == 1) output.append(v/100).append(" coffees");
+            if(v/100 != 1) output.append(v/100).append(" coffees");
             else output.append("coffee");
         }
         if(output.length() == 1) output.append("nothing");

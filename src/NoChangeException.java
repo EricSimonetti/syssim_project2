@@ -1,4 +1,5 @@
-package PACKAGE_NAME;
-
-public class NoChangeException {
+class NoChangeException extends SimulationException{
+    NoChangeException(String message){
+        super(message);
+    }
 }
